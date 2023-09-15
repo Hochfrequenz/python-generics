@@ -247,6 +247,9 @@ class TestGetFilledType:
         assert "is not a subtype" in str(error.value)
 
     def test_with_self_instance(self):
+        """
+        Test `get_filled_type` with `self` as instance.
+        """
         T = TypeVar("T")
 
         class MySuperType(Generic[T]):
