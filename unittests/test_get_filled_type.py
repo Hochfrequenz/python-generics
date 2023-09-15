@@ -255,7 +255,7 @@ class TestGetFilledType:
         class MySuperType(Generic[T]):
             # pylint: disable=missing-function-docstring
             def get_type(self) -> Any:
-                return get_filled_type(self, MySuperType, T)
+                return get_filled_type(self, MySuperType, 0)
 
         class MySubType(MySuperType[str]):
             pass
