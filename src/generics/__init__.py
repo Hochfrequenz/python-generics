@@ -6,13 +6,22 @@ will not work. This is because these "primitive" types are different from "norma
 is no need to support this edge case.
 """
 from typing import Any, Generic
-from typing import GenericAlias as TypesGenericAlias  # type: ignore[import]
-from typing import Optional, TypeVar
-from typing import _GenericAlias as TypingGenericAlias  # type: ignore[import]
+from typing import GenericAlias as TypesGenericAlias  # type: ignore[attr-defined]
+from typing import Optional, Protocol, TypeGuard, TypeVar
+from typing import _GenericAlias as TypingGenericAlias  # type: ignore[attr-defined]
 from typing import get_args, get_origin
 
 
-def get_type_vars(type_: type) -> tuple[TypeVar, ...]:
+# pylint: disable=too-few-public-methods
+class GenericType(Protocol):
+    """
+    A protocol for generic types.
+    """
+
+    __orig_bases__: tuple[type, ...]
+
+
+def get_type_vars(type_: type | GenericType) -> tuple[TypeVar, ...]:
     """
     For a given generic type, return a tuple of its type variables. The type variables are collected through the
     supertypes arguments `Generic` if present.
@@ -62,7 +71,7 @@ def get_type_vars(type_: type) -> tuple[TypeVar, ...]:
     return tuple(type_vars)
 
 
-def _generic_metaclass_executed_on_type(type_: type) -> bool:
+def _generic_metaclass_executed_on_type(type_: type | GenericType) -> TypeGuard[GenericType]:
     """
     This function determines if the type was processed by a `_GenericAlias` with all its ``__mro_entries__` magic.
     I.e. if the type has `Generic` as supertype or something like `A[T]` in its supertypes.
@@ -84,9 +93,7 @@ def _generic_metaclass_executed_on_type(type_: type) -> bool:
     return True
 
 
-def _find_super_type_trace(
-    type_: type | TypingGenericAlias | TypesGenericAlias, search_for_type: type
-) -> Optional[list[type]]:
+def _find_super_type_trace(type_: type, search_for_type: type) -> Optional[list[type]]:
     """
     This function returns a list of ancestors tracing from `type_` to `search_for_type`.
     The list is ordered from `type_` to `search_for_type`. If `search_for_type` is not a supertype of
@@ -103,6 +110,7 @@ def _find_super_type_trace(
     return None
 
 
+# pylint: disable=too-many-branches, too-many-locals
 def get_filled_type(
     type_or_instance: Any, type_var_defining_super_type: type, type_var_or_position: TypeVar | int
 ) -> Any:

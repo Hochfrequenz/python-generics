@@ -7,6 +7,9 @@ from pydantic import BaseModel
 
 from generics import get_type_vars
 
+# pylint: disable=missing-class-docstring, invalid-name, too-few-public-methods
+# These errors are disabled because all the little classes are only used for testing purposes.
+
 
 class TestGetTypeVars:
     """
