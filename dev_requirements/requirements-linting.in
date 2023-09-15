@@ -1,2 +1,3 @@
 # specific requirements for the tox linting env
 pylint
+pydantic
