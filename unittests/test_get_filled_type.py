@@ -1,7 +1,7 @@
 """
 A module with unit tests for the `get_filled_type` function.
 """
-from typing import Generic, List, TypeVar
+from typing import Any, Generic, List, TypeVar
 
 import pytest
 from pydantic import BaseModel
@@ -247,10 +247,11 @@ class TestGetFilledType:
         assert "is not a subtype" in str(error.value)
 
     def test_with_self_instance(self):
-        T = TypeVar("T", bound=type)
+        T = TypeVar("T")
 
         class MySuperType(Generic[T]):
-            def get_type(self) -> type[T]:
+            # pylint: disable=missing-function-docstring
+            def get_type(self) -> Any:
                 return get_filled_type(self, MySuperType, T)
 
         class MySubType(MySuperType[str]):
