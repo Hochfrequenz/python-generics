@@ -64,13 +64,13 @@ The `get_filled_type` function is especially useful if you have generic super ty
 the value of a `TypeVar` inside methods.
 
 ```python
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Any
 from generics import get_filled_type
 
-T = TypeVar("T", bound=type)
+T = TypeVar("T")
 
 class MySuperType(Generic[T]):
-    def get_type(self) -> type[T]:
+    def get_type(self) -> Any:
         return get_filled_type(self, MySuperType, T)
 
 class MySubType(MySuperType[str]):
