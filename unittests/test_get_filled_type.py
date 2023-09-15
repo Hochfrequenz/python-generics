@@ -226,3 +226,22 @@ class TestGetFilledType:
             get_filled_type(B, A, U)
 
         assert "The value of the TypeVar is undefined" in str(error.value)
+
+    def test_not_a_subtype(self):
+        """
+        Test `get_filled_type` with a type that is not a subtype of the super type. The function should raise a
+        TypeError.
+        """
+        T = TypeVar("T")
+        U = TypeVar("U")
+
+        class A(Generic[T, U]):
+            pass
+
+        class B(Generic[T]):
+            pass
+
+        with pytest.raises(TypeError) as error:
+            get_filled_type(B[int], A, T)
+
+        assert "is not a subtype" in str(error.value)
