@@ -245,3 +245,15 @@ class TestGetFilledType:
             get_filled_type(B[int], A, T)
 
         assert "is not a subtype" in str(error.value)
+
+    def test_with_self_instance(self):
+        T = TypeVar("T", bound=type)
+
+        class MySuperType(Generic[T]):
+            def get_type(self) -> type[T]:
+                return get_filled_type(self, MySuperType, T)
+
+        class MySubType(MySuperType[str]):
+            pass
+
+        assert MySubType().get_type() == str
