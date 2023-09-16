@@ -109,6 +109,36 @@ def _find_super_type_trace(type_: type, search_for_type: type) -> Optional[list[
     return None
 
 
+def _process_inputs_of_get_filled_type(
+    type_or_instance: Any, type_var_defining_super_type: type, type_var_or_position: TypeVar | int
+) -> tuple[type, type, int]:
+    """
+    This function processes the inputs of `get_filled_type`. It returns a tuple of the filled type, the super type and
+    the position of the type var in the supertype. Note, that there don't have to be an actual TypeVar implemented.
+    It should also work for types like `list` or `dict`.
+    """
+    if not isinstance(type_or_instance, (type, TypingGenericAlias, TypesGenericAlias)):
+        if hasattr(type_or_instance, "__orig_class__"):
+            filled_type = type_or_instance.__orig_class__
+        else:
+            filled_type = type(type_or_instance)
+    else:
+        filled_type = type_or_instance
+    if not isinstance(type_var_defining_super_type, type):
+        raise TypeError(f"Expected a type, got {type_var_defining_super_type!r}")
+    if isinstance(type_var_or_position, TypeVar):
+        try:
+            type_var_index = get_type_vars(type_var_defining_super_type).index(type_var_or_position)
+        except ValueError as error:
+            raise TypeError(
+                f"TypeVar {type_var_or_position!r} is not defined in {type_var_defining_super_type!r}"
+            ) from error
+    else:
+        type_var_index = type_var_or_position
+
+    return filled_type, type_var_defining_super_type, type_var_index
+
+
 # pylint: disable=too-many-branches, too-many-locals
 def get_filled_type(
     type_or_instance: Any, type_var_defining_super_type: type, type_var_or_position: TypeVar | int
@@ -126,32 +156,9 @@ def get_filled_type(
     >>> get_filled_type(A[int], A, 0)
     int
     """
-    if not isinstance(type_or_instance, (type, TypingGenericAlias, TypesGenericAlias)):
-        if hasattr(type_or_instance, "__orig_class__"):
-            filled_type = type_or_instance.__orig_class__
-        else:
-            filled_type = type(type_or_instance)
-    else:
-        filled_type = type_or_instance
-    if not isinstance(type_var_defining_super_type, type):
-        raise TypeError(f"Expected a type, got {type_var_defining_super_type!r}")
-    if isinstance(type_var_or_position, int):
-        try:
-            type_var = get_type_vars(type_var_defining_super_type)[type_var_or_position]
-        except IndexError as error:
-            raise TypeError(
-                f"Type {type_var_defining_super_type} has no TypeVar at position {type_var_or_position}"
-            ) from error
-    else:
-        type_var = type_var_or_position
-    if not isinstance(type_var, TypeVar):
-        raise TypeError(f"Expected a TypeVar, got {type_var!r}")
-
-    super_type_type_vars = get_type_vars(type_var_defining_super_type)
-    try:
-        type_var_index = super_type_type_vars.index(type_var)
-    except ValueError as error:
-        raise ValueError(f"TypeVar {type_var!r} is not defined in {type_var_defining_super_type!r}") from error
+    filled_type, type_var_defining_super_type, type_var_index = _process_inputs_of_get_filled_type(
+        type_or_instance, type_var_defining_super_type, type_var_or_position
+    )
 
     # Now iterate through the types ancestors to trace the type_var and eventually find the provided type.
     # If the type_var is not found, raise an error.
@@ -178,15 +185,13 @@ def get_filled_type(
             # well.
             continue
         if not _generic_metaclass_executed_on_type(type_):
-            raise TypeError(
-                f"Could not determine the type of {type_var!r} in {filled_type!r}: " f"{type_!r} is not generic"
-            )
+            raise TypeError(f"Could not determine the type in {filled_type!r}: {type_!r} is not generic")
         for orig_base in type_.__orig_bases__:
             if get_origin(orig_base) == type_trace[-reversed_index + 1]:
                 orig_base_args = get_args(orig_base)
                 if len(orig_base_args) < type_var_index:
                     raise TypeError(
-                        f"Could not determine the type of {type_var!r} in {filled_type!r}: "
+                        f"Could not determine the type in {filled_type!r}: "
                         f"{orig_base!r} has not enough type arguments"
                     )
                 type_var_replacement = orig_base_args[type_var_index]
@@ -197,15 +202,12 @@ def get_filled_type(
 
     if not isinstance(filled_type, (TypingGenericAlias, TypesGenericAlias)):
         # Note: Pydantic models which have the type var undefined will also enter this branch
-        raise TypeError(
-            f"Could not determine the type of {type_var!r} in {filled_type!r}: " "The value of the TypeVar is undefined"
-        )
+        raise TypeError(f"Could not determine the type in {filled_type!r}: The value of the TypeVar is undefined")
 
     filled_type_args = get_args(filled_type)
     if len(filled_type_args) < type_var_index:
         raise TypeError(
-            f"Could not determine the type of {type_var!r} in {filled_type!r}: "
-            f"{filled_type!r} has not enough type arguments"
+            f"Could not determine the type in {filled_type!r}: " f"{filled_type!r} has not enough type arguments"
         )
 
     return filled_type_args[type_var_index]
