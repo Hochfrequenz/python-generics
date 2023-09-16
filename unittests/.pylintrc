@@ -1,0 +1,4 @@
+[MESSAGES CONTROL]
+
+max-line-length = 120
+disable = missing-class-docstring,invalid-name,too-few-public-methods,fixme

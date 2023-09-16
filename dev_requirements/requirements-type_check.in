@@ -1,4 +1,2 @@
 # specific requirements for the tox type_check environment
 mypy
-pydantic>=2.0.0
-pytest

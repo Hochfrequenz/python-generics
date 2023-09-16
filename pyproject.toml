@@ -31,6 +31,7 @@ profile = "black"
 
 [tool.pylint."MESSAGES CONTROL"]
 max-line-length = 120
+disable = "fixme,too-few-public-methods"
 
 [build-system]
 requires = ["hatchling>=1.8.0", "hatch-vcs", "hatch-fancy-pypi-readme"]

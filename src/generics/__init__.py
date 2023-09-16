@@ -12,10 +12,10 @@ from typing import _GenericAlias as TypingGenericAlias  # type: ignore[attr-defi
 from typing import get_args, get_origin
 
 
-# pylint: disable=too-few-public-methods
 class GenericType(Protocol):
     """
-    A protocol for generic types.
+    A protocol for generic types. It is used internally to satisfy mypy since it is not smart enough to understand
+    that if a type is a subclass of a `_GenericAlias` that it will have this dunder field.
     """
 
     __orig_bases__: tuple[type, ...]
@@ -30,7 +30,8 @@ def get_type_vars(type_: type | GenericType) -> tuple[TypeVar, ...]:
     then the type variables are collected from all the supertypes from `__orig_bases__`.
 
     The order is the same as in `Generic` or in lexicographic order of the supertypes arguments if `Generic` is not
-    present.
+    present. Lexicographic order is explained in the documentation of mypy:
+    https://mypy.readthedocs.io/en/stable/generics.html#defining-subclasses-of-generic-classes
     Returns an empty tuple if the type is not generic.
 
     Example:
@@ -73,7 +74,7 @@ def get_type_vars(type_: type | GenericType) -> tuple[TypeVar, ...]:
 
 def _generic_metaclass_executed_on_type(type_: type | GenericType) -> TypeGuard[GenericType]:
     """
-    This function determines if the type was processed by a `_GenericAlias` with all its ``__mro_entries__` magic.
+    This function determines if the type was processed by a `_GenericAlias` with all its `__mro_entries__` magic.
     I.e. if the type has `Generic` as supertype or something like `A[T]` in its supertypes.
     """
     if not isinstance(type_, type) or not hasattr(type_, "__orig_bases__"):
@@ -84,13 +85,11 @@ def _generic_metaclass_executed_on_type(type_: type | GenericType) -> TypeGuard[
         for orig_base in type_.__orig_bases__
     )
     orig_bases_set.discard(None)
-    if not orig_bases_set == set(type_.__bases__):
-        # If the type has generic ancestors, the __orig_bases__ is set by the ancestors at least. I.e. if the type
-        # did not redeclare the type variables the generic machinery would not reassign the __orig_bases__. Therefore,
-        # if the origins of __orig_bases__ are not a subset of the __bases__ then the type did not redeclare the type
-        # variables.
-        return False
-    return True
+    return orig_bases_set == set(type_.__bases__)
+    # If the type has generic ancestors, the __orig_bases__ is set by the ancestors at least. I.e. if the type
+    # did not redeclare the type variables the generic machinery would not reassign the __orig_bases__. Therefore,
+    # if the origins of __orig_bases__ are not a subset of the __bases__ then the type did not redeclare the type
+    # variables.
 
 
 def _find_super_type_trace(type_: type, search_for_type: type) -> Optional[list[type]]:
