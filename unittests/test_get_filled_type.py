@@ -258,3 +258,20 @@ class TestGetFilledType:
             pass
 
         assert MySubType().get_type() == str
+
+    def test_builtin_list_as_supertype(self):
+        """
+        Test `get_filled_type` with the builtin list as supertype.
+        """
+
+        class A(list[str]):
+            pass
+
+        assert get_filled_type(A, list, 0) is str
+
+    def test_builtin_dict(self):
+        """
+        Test `get_filled_type` with the builtin dict put directly into the function.
+        """
+        assert get_filled_type(dict[str, int], dict, 1) is int
+        assert get_filled_type(dict[str, int], dict, 0) is str
