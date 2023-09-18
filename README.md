@@ -6,8 +6,10 @@
 ![Black status badge](https://github.com/Hochfrequenz/python-generics/workflows/Formatting/badge.svg)
 
 This package provides functionalities to determine the values of generic type variables in Python.
-As of now, it only supports two functions: `get_type_vars` and `get_filled_type`. These functions work also
-with pydantic generic models (only tested with pydantic > v2.3.0).
+As of now, it only supports two functions: `get_type_vars` and `get_filled_type`.
+These functions work also with pydantic generic models (only tested with pydantic > v2.3.0).
+
+The package has no dependencies itself.
 
 ### Installation
 The package is [available on PyPI](https://pypi.org/project/python-generics/):
@@ -15,7 +17,7 @@ The package is [available on PyPI](https://pypi.org/project/python-generics/):
 pip install python-generics
 ```
 
-### Usage
+### How to use (in our own application)
 
 The `get_type_vars` function returns a tuple of all type variables for a given generic type. The `TypeVar`s are
 determined by `Generic` if the type is a subclass of `Generic`. Otherwise, they are determined by the indexed
@@ -87,7 +89,7 @@ class MySubType(MySuperType[str]):
 assert MySubType().get_type() == str
 ```
 
-## How to use this Repository on Your Machine
+## How to use this Repository on Your Machine (as a developer)
 
 Follow the instructions in our [Python template repository](https://github.com/Hochfrequenz/python_template_repository#how-to-use-this-repository-on-your-machine).
 
