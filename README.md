@@ -9,6 +9,14 @@ This package provides functionalities to determine the values of generic type va
 As of now, it only supports two functions: `get_type_vars` and `get_filled_type`. These functions work also
 with pydantic generic models (only tested with pydantic > v2.3.0).
 
+### Installation
+The package is [available on PyPI](https://pypi.org/project/python-generics/):
+```bash
+pip install python-generics
+```
+
+### Usage
+
 The `get_type_vars` function returns a tuple of all type variables for a given generic type. The `TypeVar`s are
 determined by `Generic` if the type is a subclass of `Generic`. Otherwise, they are determined by the indexed
 supertypes (the order of the returned tuple is the lexicographical in the list of the supertypes).
