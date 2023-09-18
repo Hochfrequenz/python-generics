@@ -3,7 +3,7 @@
 ![Unittests status badge](https://github.com/Hochfrequenz/python-generics/workflows/Unittests/badge.svg)
 ![Coverage status badge](https://github.com/Hochfrequenz/python-generics/workflows/Coverage/badge.svg)
 ![Linting status badge](https://github.com/Hochfrequenz/python-generics/workflows/Linting/badge.svg)
-![Black status badge](https://github.com/Hochfrequenz/python-generics/workflows/Black/badge.svg)
+![Black status badge](https://github.com/Hochfrequenz/python-generics/workflows/Formatting/badge.svg)
 
 This package provides functionalities to determine the values of generic type variables in Python.
 As of now, it only supports two functions: `get_type_vars` and `get_filled_type`. These functions work also
