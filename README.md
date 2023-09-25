@@ -17,7 +17,7 @@ The package is [available on PyPI](https://pypi.org/project/python-generics/):
 pip install python-generics
 ```
 
-### How to use (in our own application)
+### How to use (in your own application)
 
 The `get_type_vars` function returns a tuple of all type variables for a given generic type. The `TypeVar`s are
 determined by `Generic` if the type is a subclass of `Generic`. Otherwise, they are determined by the indexed
