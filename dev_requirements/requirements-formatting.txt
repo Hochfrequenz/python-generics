@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements-formatting.in
 #
-black==23.9.1
+black==23.10.0
     # via -r dev_requirements/requirements-formatting.in
 click==8.1.3
     # via black
