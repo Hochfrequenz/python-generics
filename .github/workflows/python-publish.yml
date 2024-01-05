@@ -1,55 +1,62 @@
 # This GitHub workflow is only needed for python package releases which are supposed to be published on pypi.
-# This workflow will upload a Python Package using Twine when a release is created
+# It requires the Github "environments" feature (see instructions below) it might not be available for private free accounts (but works for public or organization repos).
+# After creating the "release" environment in the Github repo settings, you need to enter your Github organization/user name + repo name + "python-publish.yml" workflow file name in the PyPI UI to make this work.
+
+# This workflow uploads a Python Package using Twine when a release is created.
 # For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
 
 name: Upload Python Package
 
 on:
-  release:
-    types: [ created, edited ]
+   release:
+     types: [created, edited]
 
 jobs:
-  tests:
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        python-version: [ "3.12" ]
-        os: [ ubuntu-latest ]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install tox
-        run: |
-          python -m pip install --upgrade pip
-          pip install tox
-      - name: Run tox
-        run: |
-          tox
+   tests:
+     if: startsWith(github.ref, 'refs/tags/v')
+     runs-on: ${{ matrix.os }}
+     strategy:
+       matrix:
+         python-version: ["3.12"]
+         os: [ubuntu-latest]
+     steps:
+       - uses: actions/checkout@v4
+       - name: Set up Python ${{ matrix.python-version }}
+         uses: actions/setup-python@v5
+         with:
+           python-version: ${{ matrix.python-version }}
+       - name: Install tox
+         run: |
+           python -m pip install --upgrade pip
+           pip install tox
+       - name: Run tests
+         run: |
+           tox -e tests
 
-  build-n-publish:
-    name: Build and publish Python 🐍 distributions 📦 to PyPI and TestPyPI
-    runs-on: ubuntu-latest
-    needs: tests
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r dev_requirements/requirements-packaging.txt
-      - name: Build a binary wheel and a source tarball
-        run: |
-          python -m build
-      - name: Publish distribution 📦 to PyPI
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_API_TOKEN }}
+   build-n-publish:
+     name: Build and publish Python 🐍 distributions 📦 to PyPI and TestPyPI
+     runs-on: ubuntu-latest
+     # Specifying a GitHub environment, # Specifying a GitHub environment, which is strongly recommended by PyPI: https://docs.pypi.org/trusted-publishers/adding-a-publisher/
+     # you have to create an environment in your repository settings and add the environment name here
+     environment: release
+     permissions:
+         # IMPORTANT: this permission is mandatory for trusted publishing
+         id-token: write
+     needs: tests
+     steps:
+       - uses: actions/checkout@v4
+       - name: Set up Python
+         uses: actions/setup-python@v5
+         with:
+           python-version: ${{ matrix.python-version }}
+       - name: Install dependencies
+         run: |
+           python -m pip install --upgrade pip
+           pip install -r dev_requirements/requirements-packaging.txt
+       - name: Build wheel and source distributions
+         run: |
+           python -m build
+       - name: Publish distribution 📦 to PyPI
+         if: startsWith(github.ref, 'refs/tags/v')
+         uses: pypa/gh-action-pypi-publish@release/v1
+  
