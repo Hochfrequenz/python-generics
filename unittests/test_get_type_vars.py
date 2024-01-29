@@ -1,6 +1,7 @@
 """
 A module with unit tests for the `get_type_vars` function.
 """
+
 from typing import Generic, TypeVar
 
 from pydantic import BaseModel

@@ -5,6 +5,7 @@ Currently, this module only works for real types, i.e. something like
 will not work. This is because these "primitive" types are different from "normal" generic types and currently there
 is no need to support this edge case.
 """
+
 from typing import Any, Generic
 from typing import GenericAlias as TypesGenericAlias  # type: ignore[attr-defined]
 from typing import Optional, Protocol, TypeGuard, TypeVar
