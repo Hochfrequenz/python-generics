@@ -1,6 +1,7 @@
 """
 A module with unit tests for the `get_filled_type` function.
 """
+
 from typing import Any, Generic, List, TypeVar
 
 import pytest
