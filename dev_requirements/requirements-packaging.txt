@@ -66,7 +66,7 @@ secretstorage==3.3.3
     # via keyring
 six==1.16.0
     # via bleach
-twine==4.0.2
+twine==5.0.0
     # via -r dev_requirements/requirements-packaging.in
 urllib3==2.0.3
     # via
