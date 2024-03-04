@@ -6,7 +6,7 @@
 #
 bleach==6.0.0
     # via readme-renderer
-build==1.0.3
+build==1.1.1
     # via -r dev_requirements/requirements-packaging.in
 certifi==2023.7.22
     # via requests
