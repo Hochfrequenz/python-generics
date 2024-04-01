@@ -4,7 +4,7 @@
 #
 #    pip-compile dev_requirements/requirements-packaging.in
 #
-build==1.1.1
+build==1.2.1
     # via -r dev_requirements/requirements-packaging.in
 certifi==2024.2.2
     # via requests
@@ -19,7 +19,9 @@ docutils==0.20.1
 idna==3.6
     # via requests
 importlib-metadata==7.0.2
-    # via twine
+    # via
+    #   keyring
+    #   twine
 jaraco-classes==3.3.1
     # via keyring
 jeepney==0.8.0
