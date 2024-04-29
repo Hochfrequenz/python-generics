@@ -11,13 +11,13 @@ iniconfig==2.0.0
     # via pytest
 packaging==24.0
     # via pytest
-pluggy==1.4.0
+pluggy==1.5.0
     # via pytest
 pydantic==2.7.0
     # via -r dev_requirements/requirements-tests.in
 pydantic-core==2.18.1
     # via pydantic
-pytest==8.1.1
+pytest==8.2.0
     # via -r dev_requirements/requirements-tests.in
 typing-extensions==4.10.0
     # via
