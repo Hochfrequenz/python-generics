@@ -17,7 +17,7 @@ pydantic==2.7.2
     # via -r dev_requirements/requirements-tests.in
 pydantic-core==2.18.3
     # via pydantic
-pytest==8.2.1
+pytest==8.2.2
     # via -r dev_requirements/requirements-tests.in
 typing-extensions==4.10.0
     # via
