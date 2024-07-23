@@ -19,6 +19,9 @@ class TestPy312:
         class A[T]:
             pass
 
+        # pylint: disable=undefined-variable
+        # Issue: https://github.com/pylint-dev/pylint/issues/9335#issuecomment-2245388198
+
         class B[T](A[T]):
             pass
 
