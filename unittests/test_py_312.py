@@ -32,3 +32,6 @@ class TestPy312:
             pass
 
         assert get_filled_type(D[int, str], A, 0) is str
+        assert get_filled_type(D[int, str], B, 0) is str
+        assert get_filled_type(D[int, str], C, 0) is int
+        assert get_filled_type(D[int, str], list, 0) is int
