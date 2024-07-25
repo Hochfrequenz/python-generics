@@ -2,6 +2,7 @@
 A module with unit tests for the `get_filled_type` function.
 """
 
+from types import NoneType
 from typing import Any, Generic, List, TypeVar
 
 import pytest
@@ -86,6 +87,40 @@ class TestGetFilledType:
         a = A[int]()
 
         assert get_filled_type(a, A, T) is int
+
+    def test_defined_in_instance_of_generic_alias_no_explicit_generic(self):
+        """
+        Test `get_filled_type` with an instance (created through a _GenericAlias) instead of a type passed to the
+        function.
+        """
+        T = TypeVar("T")
+
+        class A(Generic[T]):
+            pass
+
+        class B(A[T]):
+            pass
+
+        b = B[int]()
+
+        assert get_filled_type(b, A, T) is int
+
+    def test_defined_in_instance_of_generic_alias_none_type(self):
+        """
+        Test `get_filled_type` with an instance (created through a _GenericAlias) instead of a type passed to the
+        function.
+        """
+        T = TypeVar("T")
+
+        class A(Generic[T]):
+            pass
+
+        class B(A[T]):
+            pass
+
+        b = B[NoneType]()
+
+        assert get_filled_type(b, A, T) is NoneType
 
     def test_defined_in_instance_of_class(self):
         """
@@ -258,7 +293,39 @@ class TestGetFilledType:
         class MySubType(MySuperType[str]):
             pass
 
-        assert MySubType().get_type() == str
+        assert MySubType().get_type() is str
+
+    def test_with_self_instance_in_init_call_of_generic_alias(self):
+        """
+        Test `get_filled_type` with `self` as instance.
+        """
+        T = TypeVar("T")
+
+        class MySuperType(Generic[T]):
+            # pylint: disable=missing-function-docstring
+            def __init__(self):
+                self.type = get_filled_type(self, MySuperType, 0, from_init=True)
+
+        class MySubType(MySuperType[T]):
+            pass
+
+        assert MySubType[str]().type is str
+
+    def test_with_self_instance_in_init(self):
+        """
+        Test `get_filled_type` with `self` as instance.
+        """
+        T = TypeVar("T")
+
+        class MySuperType(Generic[T]):
+            # pylint: disable=missing-function-docstring
+            def __init__(self):
+                self.type = get_filled_type(self, MySuperType, 0)
+
+        class MySubType(MySuperType[str]):
+            pass
+
+        assert MySubType().type is str
 
     def test_builtin_list_as_supertype(self):
         """

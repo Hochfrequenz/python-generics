@@ -6,10 +6,13 @@ will not work. This is because these "primitive" types are different from "norma
 is no need to support this edge case.
 """
 
+import inspect
+from types import ModuleType
 from typing import Any, Generic
 from typing import GenericAlias as TypesGenericAlias  # type: ignore[attr-defined]
 from typing import Optional, Protocol, TypeGuard, TypeVar
 from typing import _GenericAlias as TypingGenericAlias  # type: ignore[attr-defined]
+from typing import _BaseGenericAlias as TypingBaseGenericAlias  # type: ignore[attr-defined]
 from typing import get_args, get_origin
 
 
@@ -52,7 +55,7 @@ def get_type_vars(type_: type | GenericType) -> tuple[TypeVar, ...]:
     (T, U, V)
     """
     if hasattr(type_, "__pydantic_generic_metadata__"):
-        return type_.__pydantic_generic_metadata__["parameters"]
+        return type_.__pydantic_generic_metadata__["parameters"]  # type: ignore[no-any-return]
 
     if not _generic_metaclass_executed_on_type(type_):
         return ()
@@ -71,6 +74,47 @@ def get_type_vars(type_: type | GenericType) -> tuple[TypeVar, ...]:
                     type_vars.append(arg)
 
     return tuple(type_vars)
+
+
+def cached_property(func):
+    """
+    A decorator to cache the result of a property. This is useful if the property is expensive to compute.
+    """
+    attr_name = f"_{func.__name__}"
+
+    def wrapper(self):
+        if not hasattr(self, attr_name):
+            setattr(self, attr_name, func(self))
+        return getattr(self, attr_name)
+
+    return property(wrapper)
+
+
+class _FrameInfoOnDemand:
+    def __init__(self, frame_info: inspect.FrameInfo):
+        self.frame_info = frame_info
+
+    @cached_property
+    def arg_values(self) -> inspect.ArgInfo:
+        """Return the arguments of the frames current function."""
+        return inspect.getargvalues(self.frame_info.frame)
+
+    @cached_property
+    def module(self) -> ModuleType:
+        """Return the module where the frames current function lives in."""
+        module = inspect.getmodule(None, self.frame_info.filename)
+        if module is None:
+            raise ValueError("Internal error: Could not determine the module of the frame.")
+        return module
+
+    @cached_property
+    def first_arg(self) -> Any:
+        """
+        Return the first argument of the frames current function. Retrieving it from local variables.
+        Note: This is not necessarily the same value which was passed to the function. Changes from within the
+        function will be contained.
+        """
+        return self.arg_values.locals[self.arg_values.args[0]]
 
 
 def _generic_metaclass_executed_on_type(type_: type | GenericType) -> TypeGuard[GenericType]:
@@ -110,8 +154,44 @@ def _find_super_type_trace(type_: type, search_for_type: type) -> Optional[list[
     return None
 
 
+def _get_orig_class_from_inside_constructor(type_or_instance: Any) -> TypingGenericAlias | None:
+    """
+    If you are calling the "constructor" through a _GenericAlias (e.g. by calling something like A[int]()):
+    Under the hood, the __call__ function of this _GenericAlias will be called. This function instantiates and
+    initializes the object. Afterward, the __orig_class__ will be set.
+    This means that if you are trying to use get_filled_type during construction of the object we cannot rely on
+    __orig_class__. Instead, we will try to look into the stack trace for __init__ function, where the first argument
+    must be the provided object. If this was found, it will go up in the stack trace and search for the __call__
+    function of the typing module. If this is found, the variable `self` should be the __orig_class__.
+    """
+    stack = inspect.stack()
+    for index, frame_info_caller in enumerate(stack[3:]):
+        frame_info_on_demand = _FrameInfoOnDemand(frame_info_caller)
+        if index > 0 and frame_info_caller.function == "__call__":
+            # First element i.e. index == 0 should be the __init__ function
+            if (
+                frame_info_on_demand.module.__name__ != "typing"
+                or not type.__instancecheck__(TypingBaseGenericAlias, frame_info_on_demand.first_arg)
+                or frame_info_on_demand.first_arg.__origin__ is not type(type_or_instance)
+            ):
+                # Not the __call__ function of _BaseGenericAlias with the type of `type_or_instance` as __origin__
+                # With this we assume that this
+                # MyGenericClass[str]()
+                # + a call to get_filled_type inside the __init__
+                # was not the case
+                return None
+            return frame_info_on_demand.first_arg
+        if frame_info_caller.function != "__init__" or frame_info_on_demand.first_arg != type_or_instance:
+            return None
+    raise ValueError("Internal error: No stack frame found above the __init__ function(s).")
+
+
 def _process_inputs_of_get_filled_type(
-    type_or_instance: Any, type_var_defining_super_type: type, type_var_or_position: TypeVar | int
+    type_or_instance: Any,
+    type_var_defining_super_type: type,
+    type_var_or_position: TypeVar | int,
+    *,
+    from_init: bool = False,
 ) -> tuple[type, type, int]:
     """
     This function processes the inputs of `get_filled_type`. It returns a tuple of the filled type, the super type and
@@ -121,6 +201,12 @@ def _process_inputs_of_get_filled_type(
     if not isinstance(type_or_instance, (type, TypingGenericAlias, TypesGenericAlias)):
         if hasattr(type_or_instance, "__orig_class__"):
             filled_type = type_or_instance.__orig_class__
+        elif from_init:
+            pot_filled_type = _get_orig_class_from_inside_constructor(type_or_instance)
+            if pot_filled_type is not None:
+                filled_type = pot_filled_type
+            else:
+                filled_type = type(type_or_instance)
         else:
             filled_type = type(type_or_instance)
     else:
@@ -142,7 +228,11 @@ def _process_inputs_of_get_filled_type(
 
 # pylint: disable=too-many-branches, too-many-locals
 def get_filled_type(
-    type_or_instance: Any, type_var_defining_super_type: type, type_var_or_position: TypeVar | int
+    type_or_instance: Any,
+    type_var_defining_super_type: type,
+    type_var_or_position: TypeVar | int,
+    *,
+    from_init: bool = False,
 ) -> Any:
     """
     Determines the type of the `type_var_or_position` defined by the type `type_var_defining_super_type`.
@@ -158,7 +248,10 @@ def get_filled_type(
     int
     """
     filled_type, type_var_defining_super_type, type_var_index = _process_inputs_of_get_filled_type(
-        type_or_instance, type_var_defining_super_type, type_var_or_position
+        type_or_instance,
+        type_var_defining_super_type,
+        type_var_or_position,
+        from_init=from_init,
     )
 
     # Now iterate through the types ancestors to trace the type_var and eventually find the provided type.
