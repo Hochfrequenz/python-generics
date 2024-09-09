@@ -4,7 +4,7 @@
 #
 #    pip-compile dev_requirements/requirements-packaging.in
 #
-build==1.2.1
+build==1.2.2
     # via -r dev_requirements/requirements-packaging.in
 certifi==2024.2.2
     # via requests
