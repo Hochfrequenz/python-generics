@@ -57,14 +57,14 @@ def get_type_vars(type_: Union[type, GenericType]) -> tuple[TypeVar, ...]:
     if not _generic_metaclass_executed_on_type(type_):
         return ()
 
-    for base in type_.__orig_bases__:
+    for base in type_.__orig_bases__:  # type: ignore[union-attr]
         if get_origin(base) is Generic:
             return get_args(base)
 
     # if we get here, the type has not `Generic` directly as supertype. Therefore, collect the type variables from
     # all the supertypes arguments.
     type_vars: list[TypeVar] = []
-    for base in type_.__orig_bases__:
+    for base in type_.__orig_bases__:  # type: ignore[union-attr]
         if isinstance(base, (TypingGenericAlias, TypesGenericAlias)):
             for arg in get_args(base):
                 if isinstance(arg, TypeVar) and arg not in type_vars:
@@ -187,7 +187,7 @@ def get_filled_type(
             continue
         if not _generic_metaclass_executed_on_type(type_):
             raise TypeError(f"Could not determine the type in {filled_type!r}: {type_!r} is not generic")
-        for orig_base in type_.__orig_bases__:
+        for orig_base in type_.__orig_bases__:  # type: ignore[attr-defined]
             if get_origin(orig_base) == type_trace[-reversed_index + 1]:
                 orig_base_args = get_args(orig_base)
                 if len(orig_base_args) < type_var_index:
