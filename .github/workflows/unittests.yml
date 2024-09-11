@@ -24,5 +24,6 @@ jobs:
             TOXENV=py312-tests
           else
             TOXENV=py311-tests
+            fi
           echo "Running the unit tests via Tox with the environment $TOXENV"
           tox -e $TOXENV
