@@ -8,7 +8,7 @@ is no need to support this edge case.
 
 from typing import Any, Generic
 from typing import GenericAlias as TypesGenericAlias  # type: ignore[attr-defined]
-from typing import Optional, Protocol, TypeGuard, TypeVar
+from typing import Optional, Protocol, TypeVar, Union
 from typing import _GenericAlias as TypingGenericAlias  # type: ignore[attr-defined]
 from typing import get_args, get_origin
 
@@ -22,7 +22,7 @@ class GenericType(Protocol):
     __orig_bases__: tuple[type, ...]
 
 
-def get_type_vars(type_: type | GenericType) -> tuple[TypeVar, ...]:
+def get_type_vars(type_: Union[type, GenericType]) -> tuple[TypeVar, ...]:
     """
     For a given generic type, return a tuple of its type variables. The type variables are collected through the
     supertypes arguments `Generic` if present.
@@ -57,14 +57,14 @@ def get_type_vars(type_: type | GenericType) -> tuple[TypeVar, ...]:
     if not _generic_metaclass_executed_on_type(type_):
         return ()
 
-    for base in type_.__orig_bases__:
+    for base in type_.__orig_bases__:  # type: ignore[union-attr]
         if get_origin(base) is Generic:
             return get_args(base)
 
     # if we get here, the type has not `Generic` directly as supertype. Therefore, collect the type variables from
     # all the supertypes arguments.
     type_vars: list[TypeVar] = []
-    for base in type_.__orig_bases__:
+    for base in type_.__orig_bases__:  # type: ignore[union-attr]
         if isinstance(base, (TypingGenericAlias, TypesGenericAlias)):
             for arg in get_args(base):
                 if isinstance(arg, TypeVar) and arg not in type_vars:
@@ -73,7 +73,7 @@ def get_type_vars(type_: type | GenericType) -> tuple[TypeVar, ...]:
     return tuple(type_vars)
 
 
-def _generic_metaclass_executed_on_type(type_: type | GenericType) -> TypeGuard[GenericType]:
+def _generic_metaclass_executed_on_type(type_: Union[type, GenericType]) -> bool:
     """
     This function determines if the type was processed by a `_GenericAlias` with all its `__mro_entries__` magic.
     I.e. if the type has `Generic` as supertype or something like `A[T]` in its supertypes.
@@ -111,7 +111,7 @@ def _find_super_type_trace(type_: type, search_for_type: type) -> Optional[list[
 
 
 def _process_inputs_of_get_filled_type(
-    type_or_instance: Any, type_var_defining_super_type: type, type_var_or_position: TypeVar | int
+    type_or_instance: Any, type_var_defining_super_type: type, type_var_or_position: Union[TypeVar, int]
 ) -> tuple[type, type, int]:
     """
     This function processes the inputs of `get_filled_type`. It returns a tuple of the filled type, the super type and
@@ -142,7 +142,7 @@ def _process_inputs_of_get_filled_type(
 
 # pylint: disable=too-many-branches, too-many-locals
 def get_filled_type(
-    type_or_instance: Any, type_var_defining_super_type: type, type_var_or_position: TypeVar | int
+    type_or_instance: Any, type_var_defining_super_type: type, type_var_or_position: Union[TypeVar, int]
 ) -> Any:
     """
     Determines the type of the `type_var_or_position` defined by the type `type_var_defining_super_type`.
@@ -187,7 +187,7 @@ def get_filled_type(
             continue
         if not _generic_metaclass_executed_on_type(type_):
             raise TypeError(f"Could not determine the type in {filled_type!r}: {type_!r} is not generic")
-        for orig_base in type_.__orig_bases__:
+        for orig_base in type_.__orig_bases__:  # type: ignore[attr-defined]
             if get_origin(orig_base) == type_trace[-reversed_index + 1]:
                 orig_base_args = get_args(orig_base)
                 if len(orig_base_args) < type_var_index:
