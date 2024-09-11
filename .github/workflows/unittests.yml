@@ -20,7 +20,7 @@ jobs:
           pip install tox
       - name: Run the Unit Tests via Tox
         run: |
-          TOXENV=py${{ matrix.python-version }}-tests
+          TOXENV=tests-py${{ matrix.python-version }}
           TOXENV=${TOXENV//.}
           echo "Running the unit tests via Tox with the environment $TOXENV"
           tox -e $TOXENV
