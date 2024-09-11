@@ -20,9 +20,9 @@ jobs:
           pip install tox
       - name: Run the Unit Tests via Tox
         run: |
-          if [ "${{ matrix.python-version }}" < "3.12" ]; then
-            TOXENV=py311-tests
-          else
+          if [ "${{ matrix.python-version }}" = "3.12" ]; then
             TOXENV=py312-tests
+          else
+            TOXENV=py311-tests
           echo "Running the unit tests via Tox with the environment $TOXENV"
           tox -e $TOXENV
