@@ -6,9 +6,9 @@ will not work. This is because these "primitive" types are different from "norma
 is no need to support this edge case.
 """
 
-from typing import Any, Generic, Union
+from typing import Any, Generic
 from typing import GenericAlias as TypesGenericAlias  # type: ignore[attr-defined]
-from typing import Optional, Protocol, TypeVar
+from typing import Optional, Protocol, TypeVar, Union
 from typing import _GenericAlias as TypingGenericAlias  # type: ignore[attr-defined]
 from typing import get_args, get_origin
 
