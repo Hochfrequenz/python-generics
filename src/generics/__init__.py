@@ -8,7 +8,7 @@ is no need to support this edge case.
 
 from typing import Any, Generic
 from typing import GenericAlias as TypesGenericAlias  # type: ignore[attr-defined]
-from typing import Optional, Protocol, TypeGuard, TypeVar
+from typing import Optional, Protocol, TypeVar
 from typing import _GenericAlias as TypingGenericAlias  # type: ignore[attr-defined]
 from typing import get_args, get_origin
 
@@ -73,7 +73,7 @@ def get_type_vars(type_: type | GenericType) -> tuple[TypeVar, ...]:
     return tuple(type_vars)
 
 
-def _generic_metaclass_executed_on_type(type_: type | GenericType) -> TypeGuard[GenericType]:
+def _generic_metaclass_executed_on_type(type_: type | GenericType) -> bool:
     """
     This function determines if the type was processed by a `_GenericAlias` with all its `__mro_entries__` magic.
     I.e. if the type has `Generic` as supertype or something like `A[T]` in its supertypes.
