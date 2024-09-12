@@ -3,12 +3,12 @@ A module with unit tests for the `get_filled_type` function.
 """
 
 from types import NoneType
-from typing import Any, Generic, List, TypeVar
+from typing import Any, Generic, List, TypeVar, Union, AnyStr, get_args
 
 import pytest
 from pydantic import BaseModel
 
-from generics import get_filled_type
+from generics import get_filled_type, get_type_vars
 
 
 class TestGetFilledType:
@@ -343,3 +343,30 @@ class TestGetFilledType:
         """
         assert get_filled_type(dict[str, int], dict, 1) is int
         assert get_filled_type(dict[str, int], dict, 0) is str
+
+    def test_typing_union(self):
+        """
+        Test `get_filled_type` with the builtin dict put directly into the function.
+        """
+        T = TypeVar("T")
+        generic_type = Union[str, int, T]
+        assert get_filled_type(generic_type[float], generic_type, T) is float
+        assert get_filled_type(generic_type[bool], generic_type, T) is bool
+
+    def test_get_args(self):
+        """
+        Test `get_args` from typing package
+        """
+        T = TypeVar("T")
+        generic_type = Union[str, AnyStr, int, T]
+
+        class A(Generic[T, AnyStr]):
+            pass
+
+        class B(A[int, AnyStr]):
+            pass
+
+        generic_type_args = get_args(generic_type)
+        class_args = get_args(B)
+        generic_type_args = get_type_vars(generic_type)
+        print(generic_type_args)

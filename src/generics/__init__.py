@@ -57,6 +57,9 @@ def get_type_vars(type_: type | GenericType) -> tuple[TypeVar, ...]:
     if hasattr(type_, "__pydantic_generic_metadata__"):
         return type_.__pydantic_generic_metadata__["parameters"]  # type: ignore[no-any-return]
 
+    if isinstance(type_, (TypingGenericAlias, TypesGenericAlias)):
+        return tuple(filter(lambda arg: isinstance(arg, TypeVar), get_args(type_)))
+
     if not _generic_metaclass_executed_on_type(type_):
         return ()
 
@@ -192,7 +195,7 @@ def _process_inputs_of_get_filled_type(
     type_var_or_position: TypeVar | int,
     *,
     from_init: bool = False,
-) -> tuple[type, type, int]:
+) -> tuple[type | TypingGenericAlias | TypesGenericAlias, type | TypingGenericAlias | TypesGenericAlias, int]:
     """
     This function processes the inputs of `get_filled_type`. It returns a tuple of the filled type, the super type and
     the position of the type var in the supertype. Note, that there don't have to be an actual TypeVar implemented.
@@ -211,8 +214,8 @@ def _process_inputs_of_get_filled_type(
             filled_type = type(type_or_instance)
     else:
         filled_type = type_or_instance
-    if not isinstance(type_var_defining_super_type, type):
-        raise TypeError(f"Expected a type, got {type_var_defining_super_type!r}")
+    if not isinstance(type_var_defining_super_type, (type, TypingGenericAlias, TypesGenericAlias)):
+        raise TypeError(f"Expected a type or GenericAlias, got {type_var_defining_super_type!r}")
     if isinstance(type_var_or_position, TypeVar):
         try:
             type_var_index = get_type_vars(type_var_defining_super_type).index(type_var_or_position)
@@ -229,7 +232,7 @@ def _process_inputs_of_get_filled_type(
 # pylint: disable=too-many-branches, too-many-locals
 def get_filled_type(
     type_or_instance: Any,
-    type_var_defining_super_type: type,
+    type_var_defining_super_type: type | TypingGenericAlias | TypesGenericAlias,
     type_var_or_position: TypeVar | int,
     *,
     from_init: bool = False,
