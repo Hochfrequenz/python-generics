@@ -21,6 +21,32 @@ classifiers = [
 dependencies = []     # add all the dependencies from requirements.in here, too
 dynamic = ["readme", "version"]
 
+[project.optional-dependencies]
+coverage = [
+    "coverage==7.6.1"
+]
+formatting = [
+    "black==24.8.0",
+    "isort==5.13.2"
+]
+linting = [
+    "pylint==3.3.0"
+]
+spellcheck = [
+    "codespell==2.3.0"
+]
+test_packaging = [
+    "build==1.2.2",
+    "twine==5.1.1"
+]
+tests = [
+    "pydantic==2.9.2",
+    "pytest==8.3.3"
+]
+type_check = [
+    "mypy==1.11.2"
+]
+
 [project.urls]
 Changelog = "https://github.com/Hochfrequenz/python-generics/releases"
 Homepage = "https://github.com/Hochfrequenz/python-generics"
