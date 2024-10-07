@@ -36,7 +36,7 @@ spellcheck = [
     "codespell==2.3.0"
 ]
 test_packaging = [
-    "build==1.2.2",
+    "build==1.2.2.post1",
     "twine==5.1.1"
 ]
 tests = [
