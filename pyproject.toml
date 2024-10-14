@@ -27,7 +27,7 @@ coverage = [
     "coverage==7.6.1"
 ]
 formatting = [
-    "black==24.8.0",
+    "black==24.10.0",
     "isort==5.13.2"
 ]
 linting = [
