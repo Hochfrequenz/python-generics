@@ -17,6 +17,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 dependencies = []     # add all the dependencies from requirements.in here, too
 dynamic = ["readme", "version"]
@@ -53,7 +54,7 @@ Homepage = "https://github.com/Hochfrequenz/python-generics"
 
 [tool.black]
 line-length = 120
-target_version = ["py39", "py310", "py311", "py312"]
+target_version = ["py39", "py310", "py311", "py312", "py313"]
 
 [tool.isort]
 line_length = 120
