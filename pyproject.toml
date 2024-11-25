@@ -41,7 +41,7 @@ test_packaging = [
     "twine==5.1.1"
 ]
 tests = [
-    "pydantic==2.9.2",
+    "pydantic==2.10.1",
     "pytest==8.3.3"
 ]
 type_check = [
