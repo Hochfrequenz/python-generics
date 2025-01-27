@@ -38,7 +38,7 @@ spellcheck = [
 ]
 test_packaging = [
     "build==1.2.2.post1",
-    "twine==6.0.1"
+    "twine==6.1.0"
 ]
 tests = [
     "pydantic==2.10.5",
