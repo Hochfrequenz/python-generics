@@ -45,7 +45,7 @@ tests = [
     "pytest==8.4.1"
 ]
 type_check = [
-    "mypy==1.17.0"
+    "mypy==1.17.1"
 ]
 
 [project.urls]
