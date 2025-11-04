@@ -4,18 +4,16 @@ on: [push]
 jobs:
   pylint:
     name: Python Code Quality and Lint
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.13"]
-        os: [ubuntu-latest]
         linter-env: ["linting", "type_check"]
     steps:
       - uses: actions/checkout@v5
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
         uses: actions/setup-python@v6
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: 3.14
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip

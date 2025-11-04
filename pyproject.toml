@@ -2,7 +2,7 @@
 name = "python-generics"
 description = "A package to determine the values of generic classes through instances or subclasses "
 license = { text = "MIT" }
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 authors = [{ name = "Hochfrequenz Unternehmensberatung GmbH", email = "info@hochfrequenz.de" }]
 keywords = ["python", "generics"]
 classifiers = [
@@ -13,11 +13,11 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 dependencies = []     # add all the dependencies from requirements.in here, too
 dynamic = ["readme", "version"]
@@ -54,7 +54,7 @@ Homepage = "https://github.com/Hochfrequenz/python-generics"
 
 [tool.black]
 line-length = 120
-target_version = ["py39", "py310", "py311", "py312", "py313"]
+target_version = ["py310", "py311", "py312", "py313", "py314"]
 
 [tool.isort]
 line_length = 120
