@@ -14,17 +14,13 @@ on:
 jobs:
    tests:
      if: startsWith(github.ref, 'refs/tags/v')
-     runs-on: ${{ matrix.os }}
-     strategy:
-       matrix:
-         python-version: ["3.13"]
-         os: [ubuntu-latest]
+     runs-on: ubuntu-latest
      steps:
        - uses: actions/checkout@v5
-       - name: Set up Python ${{ matrix.python-version }}
+       - name: Set up Python
          uses: actions/setup-python@v6
          with:
-           python-version: ${{ matrix.python-version }}
+           python-version: 3.14
        - name: Install tox
          run: |
            python -m pip install --upgrade pip
@@ -35,11 +31,7 @@ jobs:
 
    build-n-publish:
      name: Build and publish Python 🐍 distributions 📦 to PyPI and TestPyPI
-     runs-on: ${{ matrix.os }}
-     strategy:
-       matrix:
-         python-version: [ "3.12" ]
-         os: [ ubuntu-latest ]
+     runs-on: ubuntu-latest
      # Specifying a GitHub environment, # Specifying a GitHub environment, which is strongly recommended by PyPI: https://docs.pypi.org/trusted-publishers/adding-a-publisher/
      # you have to create an environment in your repository settings and add the environment name here
      environment: release
@@ -52,7 +44,7 @@ jobs:
        - name: Set up Python
          uses: actions/setup-python@v6
          with:
-           python-version: ${{ matrix.python-version }}
+           python-version: 3.14
        - name: Install dependencies
          run: |
            python -m pip install --upgrade pip
