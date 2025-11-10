@@ -28,7 +28,7 @@ coverage = [
 ]
 formatting = [
     "black==25.11.0",
-    "isort==6.1.0"
+    "isort==7.0.0"
 ]
 linting = [
     "pylint==4.0.2"
