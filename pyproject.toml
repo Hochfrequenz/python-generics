@@ -42,7 +42,7 @@ test_packaging = [
 ]
 tests = [
     "pydantic==2.12.5",
-    "pytest==9.0.1"
+    "pytest==9.0.2"
 ]
 type_check = [
     "mypy==1.19.0"
