@@ -34,7 +34,7 @@ linting = [
     "pylint==4.0.5"
 ]
 spellcheck = [
-    "codespell==2.4.1"
+    "codespell==2.4.2"
 ]
 test_packaging = [
     "build==1.4.0",
