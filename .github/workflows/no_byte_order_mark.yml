@@ -11,6 +11,6 @@ jobs:
   bom-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: arma-actions/bom-check@v1
         name: Check for BOM
