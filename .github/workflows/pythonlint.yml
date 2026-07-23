@@ -10,14 +10,19 @@ jobs:
         linter-env: ["linting", "type_check"]
     steps:
       - uses: actions/checkout@v7
-      - name: Set up Python
-        uses: actions/setup-python@v7
+      - name: Install uv
+        uses: astral-sh/setup-uv@v9.0.0
         with:
-          python-version: 3.14
+          python-version: "3.14"
       - name: Install Dependencies
+        run: uv sync --group ${{ matrix.linter-env }}
+      - name: Run linting
+        if: matrix.linter-env == 'linting'
         run: |
-          python -m pip install --upgrade pip
-          pip install tox
-      - name: Run ${{ matrix.linter-env }} via Tox
+          uv run --group linting pylint src/generics
+          uv run --group linting pylint unittests --rcfile=unittests/.pylintrc
+      - name: Run type_check
+        if: matrix.linter-env == 'type_check'
         run: |
-          tox -e ${{ matrix.linter-env }}
+          uv run --group type_check mypy --show-error-codes src/generics
+          uv run --group type_check mypy --show-error-codes --enable-incomplete-feature=NewGenericSyntax unittests

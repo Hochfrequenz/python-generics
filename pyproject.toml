@@ -19,34 +19,8 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
 ]
-dependencies = []     # add all the dependencies from requirements.in here, too
+dependencies = []
 dynamic = ["readme", "version"]
-
-[project.optional-dependencies]
-coverage = [
-    "coverage==7.15.2"
-]
-formatting = [
-    "black==26.5.1",
-    "isort==8.0.1"
-]
-linting = [
-    "pylint==4.0.6"
-]
-spellcheck = [
-    "codespell==2.4.3"
-]
-test_packaging = [
-    "build==1.5.1",
-    "twine==6.2.0"
-]
-tests = [
-    "pydantic==2.13.4",
-    "pytest==9.1.1"
-]
-type_check = [
-    "mypy==2.3.0"
-]
 
 [project.urls]
 Changelog = "https://github.com/Hochfrequenz/python-generics/releases"
@@ -63,6 +37,46 @@ profile = "black"
 [tool.pylint."MESSAGES CONTROL"]
 max-line-length = 120
 disable = "fixme,too-few-public-methods"
+
+[tool.codespell]
+skip = "uv.lock"
+
+[dependency-groups]
+tests = [
+    "pydantic==2.13.4",
+    "pytest==9.1.1"
+]
+coverage = [
+    "coverage==7.15.2",
+    {include-group = "tests"}
+]
+linting = [
+    "pylint==4.0.6",
+    {include-group = "tests"}
+]
+type_check = [
+    "mypy==2.3.0",
+    {include-group = "tests"}
+]
+spellcheck = [
+    "codespell==2.4.3"
+]
+formatting = [
+    "black==26.5.1",
+    "isort==8.0.1"
+]
+dev = [
+    {include-group = "tests"},
+    {include-group = "coverage"},
+    {include-group = "linting"},
+    {include-group = "type_check"},
+    {include-group = "spellcheck"},
+    {include-group = "formatting"},
+    "pre-commit"
+]
+
+[tool.uv]
+default-groups = []
 
 [build-system]
 requires = ["hatchling>=1.8.0", "hatch-vcs", "hatch-fancy-pypi-readme"]
