@@ -6,7 +6,7 @@
 ![Black status badge](https://github.com/Hochfrequenz/python-generics/workflows/Formatting/badge.svg)
 
 Ever wondered how to do something like this?
-    
+
 ```python
 from typing import Generic, TypeVar
 
@@ -109,7 +109,7 @@ assert MySubType().get_type() == str
 ```
 
 ## Limitations
-Due to how generics are implemented in Python, it is not possible to 
+Due to how generics are implemented in Python, it is not possible to
 determine the value of a `TypeVar` inside the constructor. This would require
 some stack trace analysis and is currently not implemented in this project.
 However, for most scenarios there is an easy workaround for this.
@@ -133,7 +133,7 @@ from generics import get_filled_type
 class MySuperType[T]:
     def __init__(self):
         self._my_type: type[T] | None = None
-    
+
     @property
     def my_type(self) -> type[T]:
         if self._my_type is None:
