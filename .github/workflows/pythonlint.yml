@@ -3,21 +3,27 @@ name: "Linting"
 on: [push]
 jobs:
   pylint:
-    name: Python Code Quality and Lint
+    name: Python Code Quality and Lint (${{ matrix.linter-env }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
         linter-env: ["linting", "type_check"]
     steps:
       - uses: actions/checkout@v7
-      - name: Set up Python
-        uses: actions/setup-python@v7
+      - name: Install uv
+        uses: astral-sh/setup-uv@v9.0.0
         with:
-          python-version: 3.14
+          python-version: "3.14"
       - name: Install Dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install tox
-      - name: Run ${{ matrix.linter-env }} via Tox
+          uv sync --group ${{ matrix.linter-env }}
+      - name: Run pylint
+        if: matrix.linter-env == 'linting'
         run: |
-          tox -e ${{ matrix.linter-env }}
+          uv run pylint src/generics
+          uv run pylint unittests --rcfile=unittests/.pylintrc
+      - name: Run mypy
+        if: matrix.linter-env == 'type_check'
+        run: |
+          uv run mypy --show-error-codes src/generics
+          uv run mypy --show-error-codes --enable-incomplete-feature=NewGenericSyntax unittests

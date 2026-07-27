@@ -10,17 +10,18 @@ jobs:
         os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v7
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v7
+      - name: Install uv
+        uses: astral-sh/setup-uv@v9.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install tox
-      - name: Run the Unit Tests via Tox
+          uv sync --group tests
+      - name: Run the Unit Tests (py3.10/3.11)
+        if: matrix.python-version == '3.10' || matrix.python-version == '3.11'
         run: |
-          TOXENV=tests-py${{ matrix.python-version }}
-          TOXENV=${TOXENV//.}
-          echo "Running the unit tests via Tox with the environment $TOXENV"
-          tox -e $TOXENV
+          uv run pytest --ignore=unittests/test_py_312.py
+      - name: Run the Unit Tests
+        if: matrix.python-version != '3.10' && matrix.python-version != '3.11'
+        run: |
+          uv run pytest

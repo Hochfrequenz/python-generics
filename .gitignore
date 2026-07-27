@@ -133,4 +133,4 @@ dmypy.json
 # vscode settings
 .vscode/
 
-src/_your_package_version.py
+src/_generics_version.py

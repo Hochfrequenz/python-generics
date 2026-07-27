@@ -2,7 +2,7 @@
 # It requires the Github "environments" feature (see instructions below) it might not be available for private free accounts (but works for public or organization repos).
 # After creating the "release" environment in the Github repo settings, you need to enter your Github organization/user name + repo name + "python-publish.yml" workflow file name in the PyPI UI to make this work.
 
-# This workflow uploads a Python Package using Twine when a release is created.
+# This workflow uploads a Python Package using uv when a release is created.
 # For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
 
 name: Upload Python Package
@@ -17,17 +17,16 @@ jobs:
      runs-on: ubuntu-latest
      steps:
        - uses: actions/checkout@v7
-       - name: Set up Python
-         uses: actions/setup-python@v7
+       - name: Install uv
+         uses: astral-sh/setup-uv@v9.0.0
          with:
-           python-version: 3.14
-       - name: Install tox
+           python-version: "3.14"
+       - name: Install dependencies
          run: |
-           python -m pip install --upgrade pip
-           pip install tox
+           uv sync --group tests
        - name: Run tests
          run: |
-           tox -e tests
+           uv run pytest
 
    build-n-publish:
      name: Build and publish Python 🐍 distributions 📦 to PyPI and TestPyPI
@@ -41,18 +40,14 @@ jobs:
      needs: tests
      steps:
        - uses: actions/checkout@v7
-       - name: Set up Python
-         uses: actions/setup-python@v7
+       - name: Install uv
+         uses: astral-sh/setup-uv@v9.0.0
          with:
-           python-version: 3.14
-       - name: Install dependencies
-         run: |
-           python -m pip install --upgrade pip
-           pip install .[test_packaging]
+           python-version: "3.14"
        - name: Build wheel and source distributions
          run: |
-           python -m build
+           uv build
        - name: Publish distribution 📦 to PyPI
          if: startsWith(github.ref, 'refs/tags/v')
-         uses: pypa/gh-action-pypi-publish@release/v1
-  
+         run: |
+           uv publish --trusted-publishing=automatic

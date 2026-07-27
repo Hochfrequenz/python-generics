@@ -19,38 +19,48 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
 ]
-dependencies = []     # add all the dependencies from requirements.in here, too
+dependencies = []
 dynamic = ["readme", "version"]
 
-[project.optional-dependencies]
+[project.urls]
+Changelog = "https://github.com/Hochfrequenz/python-generics/releases"
+Homepage = "https://github.com/Hochfrequenz/python-generics"
+
+[dependency-groups]
+tests = [
+    "pydantic==2.13.4",
+    "pytest==9.1.1"
+]
 coverage = [
-    "coverage==7.15.2"
+    "coverage==7.15.2",
+    {include-group = "tests"}
 ]
 formatting = [
     "black==26.5.1",
     "isort==8.0.1"
 ]
 linting = [
-    "pylint==4.0.6"
+    "pylint==4.0.6",
+    {include-group = "tests"}
 ]
 spellcheck = [
     "codespell==2.4.3"
 ]
-test_packaging = [
-    "build==1.5.1",
-    "twine==6.2.0"
-]
-tests = [
-    "pydantic==2.13.4",
-    "pytest==9.1.1"
-]
 type_check = [
-    "mypy==2.3.0"
+    "mypy==2.3.0",
+    {include-group = "tests"}
+]
+dev = [
+    {include-group = "tests"},
+    {include-group = "linting"},
+    {include-group = "type_check"},
+    {include-group = "coverage"},
+    {include-group = "formatting"},
+    "pre-commit"
 ]
 
-[project.urls]
-Changelog = "https://github.com/Hochfrequenz/python-generics/releases"
-Homepage = "https://github.com/Hochfrequenz/python-generics"
+[tool.uv]
+default-groups = []
 
 [tool.black]
 line-length = 120
