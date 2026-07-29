@@ -188,7 +188,7 @@ def get_filled_type(
         for orig_base in type_.__orig_bases__:  # type: ignore[attr-defined]
             if get_origin(orig_base) == type_trace[-reversed_index + 1]:
                 orig_base_args = get_args(orig_base)
-                if len(orig_base_args) < type_var_index:
+                if len(orig_base_args) <= type_var_index:
                     raise TypeError(
                         f"Could not determine the type in {filled_type!r}: {orig_base!r} has not enough type arguments"
                     )
@@ -203,7 +203,7 @@ def get_filled_type(
         raise TypeError(f"Could not determine the type in {filled_type!r}: The value of the TypeVar is undefined")
 
     filled_type_args = get_args(filled_type)
-    if len(filled_type_args) < type_var_index:
+    if len(filled_type_args) <= type_var_index:
         raise TypeError(
             f"Could not determine the type in {filled_type!r}: {filled_type!r} has not enough type arguments"
         )
