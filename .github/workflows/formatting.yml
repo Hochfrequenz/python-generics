@@ -3,10 +3,19 @@ name: "Formatting"
 on: [push]
 jobs:
   black:
+    # job id and matrix "tool" values are kept as black/isort on purpose: they're the required
+    # status check names configured in the repo's branch ruleset ("black (black)", "black
+    # (isort)"). The command each value runs is now ruff, not the tool the label names -
+    # renaming the labels requires updating the ruleset's required-check list in the same change.
+    name: "black (${{ matrix.tool }})"
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        tool: ["black", "isort"]
+        include:
+          - tool: black
+            command: "ruff format --check ."
+          - tool: isort
+            command: "ruff check --select I ."
     steps:
       - uses: actions/checkout@v7
       - name: Install uv
@@ -14,7 +23,7 @@ jobs:
         with:
           python-version: "3.14"
       - name: Install dependencies
-        run: uv sync --group formatting
+        run: uv sync --group linting
       - name: ${{ matrix.tool }} Code Formatter
         run: |
-          uv run --group formatting ${{ matrix.tool }} . --check
+          uv run --group linting ${{ matrix.command }}
