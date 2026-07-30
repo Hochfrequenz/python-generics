@@ -2,7 +2,7 @@
 A module with unit tests for the `get_filled_type` function.
 """
 
-from typing import Any, Generic, List, TypeVar
+from typing import Any, Generic, TypeVar
 
 import pytest
 from pydantic import BaseModel
@@ -68,7 +68,7 @@ class TestGetFilledType:
         class C(Generic[U]):
             pass
 
-        class D(B[Z], C[int], List[U], Generic[U, Z]):
+        class D(B[Z], C[int], list[U], Generic[U, Z]):
             pass
 
         assert get_filled_type(D[int, str], A, T) is str
@@ -121,7 +121,7 @@ class TestGetFilledType:
         class C(Generic[U]):
             pass
 
-        class D(B[Z], C[int], List[U], Generic[U, Z]):
+        class D(B[Z], C[int], list[U], Generic[U, Z]):
             pass
 
         d = D[int, str]()
@@ -146,7 +146,7 @@ class TestGetFilledType:
         class C(Generic[U]):
             pass
 
-        class D(B[Z], C[int], List[U], Generic[U, Z]):
+        class D(B[Z], C[int], list[U], Generic[U, Z]):
             pass
 
         E = D[int, T]
@@ -258,7 +258,7 @@ class TestGetFilledType:
         class MySubType(MySuperType[str]):
             pass
 
-        assert MySubType().get_type() == str
+        assert MySubType().get_type() is str
 
     def test_builtin_list_as_supertype(self):
         """

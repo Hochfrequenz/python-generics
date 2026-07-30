@@ -26,17 +26,30 @@ dynamic = ["readme", "version"]
 Changelog = "https://github.com/Hochfrequenz/python-generics/releases"
 Homepage = "https://github.com/Hochfrequenz/python-generics"
 
-[tool.black]
+[tool.ruff]
 line-length = 120
-target_version = ["py310", "py311", "py312", "py313", "py314"]
+target-version = "py310"
+extend-exclude = ["*.md"]
 
-[tool.isort]
-line_length = 120
-profile = "black"
+[tool.ruff.per-file-target-version]
+"unittests/test_py_312.py" = "py312"
 
-[tool.pylint."MESSAGES CONTROL"]
-max-line-length = 120
-disable = "fixme,too-few-public-methods"
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "UP", "B", "N", "PL", "RUF"]
+ignore = [
+    "PLR0912", # too-many-branches
+    "PLR0913", # too-many-arguments
+    "PLR0915", # too-many-statements
+    "PLR0917", # too-many-positional-arguments
+    "PLR2004", # magic-value-comparison
+]
+
+[tool.ruff.lint.per-file-ignores]
+# unittests/.pylintrc disabled invalid-name repo-wide for this directory: tests use single
+# uppercase letters (A, B, C, ...) as class/type-alias names to mirror TypeVar conventions.
+"unittests/*" = ["N"]
+
+[tool.ruff.format]
 
 [tool.codespell]
 skip = "uv.lock"
@@ -51,7 +64,7 @@ coverage = [
     {include-group = "tests"}
 ]
 linting = [
-    "pylint==4.0.6",
+    "ruff==0.16.0",
     {include-group = "tests"}
 ]
 type_check = [
@@ -61,17 +74,12 @@ type_check = [
 spellcheck = [
     "codespell==2.4.3"
 ]
-formatting = [
-    "black==26.5.1",
-    "isort==8.0.1"
-]
 dev = [
     {include-group = "tests"},
     {include-group = "coverage"},
     {include-group = "linting"},
     {include-group = "type_check"},
     {include-group = "spellcheck"},
-    {include-group = "formatting"},
     "pre-commit"
 ]
 

@@ -6,11 +6,9 @@ will not work. This is because these "primitive" types are different from "norma
 is no need to support this edge case.
 """
 
-from typing import Any, Generic
+from typing import Any, Generic, Protocol, TypeVar, get_args, get_origin
 from typing import GenericAlias as TypesGenericAlias  # type: ignore[attr-defined]
-from typing import Optional, Protocol, TypeVar, Union
 from typing import _GenericAlias as TypingGenericAlias  # type: ignore[attr-defined]
-from typing import get_args, get_origin
 
 
 class GenericType(Protocol):
@@ -22,7 +20,7 @@ class GenericType(Protocol):
     __orig_bases__: tuple[type, ...]
 
 
-def get_type_vars(type_: Union[type, GenericType]) -> tuple[TypeVar, ...]:
+def get_type_vars(type_: type | GenericType) -> tuple[TypeVar, ...]:
     """
     For a given generic type, return a tuple of its type variables. The type variables are collected through the
     supertypes arguments `Generic` if present.
@@ -73,7 +71,7 @@ def get_type_vars(type_: Union[type, GenericType]) -> tuple[TypeVar, ...]:
     return tuple(type_vars)
 
 
-def _generic_metaclass_executed_on_type(type_: Union[type, GenericType]) -> bool:
+def _generic_metaclass_executed_on_type(type_: type | GenericType) -> bool:
     """
     This function determines if the type was processed by a `_GenericAlias` with all its `__mro_entries__` magic.
     I.e. if the type has `Generic` as supertype or something like `A[T]` in its supertypes.
@@ -93,7 +91,7 @@ def _generic_metaclass_executed_on_type(type_: Union[type, GenericType]) -> bool
     # variables.
 
 
-def _find_super_type_trace(type_: type, search_for_type: type) -> Optional[list[type]]:
+def _find_super_type_trace(type_: type, search_for_type: type) -> list[type] | None:
     """
     This function returns a list of ancestors tracing from `type_` to `search_for_type`.
     The list is ordered from `type_` to `search_for_type`. If `search_for_type` is not a supertype of
@@ -101,17 +99,17 @@ def _find_super_type_trace(type_: type, search_for_type: type) -> Optional[list[
     """
     if type_ == search_for_type:
         return [type_]
-    if type_ == object:
+    if type_ is object:
         return None
     for base in type_.__bases__:
         super_type_trace = _find_super_type_trace(base, search_for_type)
         if super_type_trace is not None:
-            return [type_] + super_type_trace
+            return [type_, *super_type_trace]
     return None
 
 
 def _process_inputs_of_get_filled_type(
-    type_or_instance: Any, type_var_defining_super_type: type, type_var_or_position: Union[TypeVar, int]
+    type_or_instance: Any, type_var_defining_super_type: type, type_var_or_position: TypeVar | int
 ) -> tuple[type, type, int]:
     """
     This function processes the inputs of `get_filled_type`. It returns a tuple of the filled type, the super type and
@@ -142,7 +140,7 @@ def _process_inputs_of_get_filled_type(
 
 # pylint: disable=too-many-branches, too-many-locals
 def get_filled_type(
-    type_or_instance: Any, type_var_defining_super_type: type, type_var_or_position: Union[TypeVar, int]
+    type_or_instance: Any, type_var_defining_super_type: type, type_var_or_position: TypeVar | int
 ) -> Any:
     """
     Determines the type of the `type_var_or_position` defined by the type `type_var_defining_super_type`.
@@ -190,10 +188,9 @@ def get_filled_type(
         for orig_base in type_.__orig_bases__:  # type: ignore[attr-defined]
             if get_origin(orig_base) == type_trace[-reversed_index + 1]:
                 orig_base_args = get_args(orig_base)
-                if len(orig_base_args) < type_var_index:
+                if len(orig_base_args) <= type_var_index:
                     raise TypeError(
-                        f"Could not determine the type in {filled_type!r}: "
-                        f"{orig_base!r} has not enough type arguments"
+                        f"Could not determine the type in {filled_type!r}: {orig_base!r} has not enough type arguments"
                     )
                 type_var_replacement = orig_base_args[type_var_index]
                 if not isinstance(type_var_replacement, TypeVar):
@@ -206,9 +203,9 @@ def get_filled_type(
         raise TypeError(f"Could not determine the type in {filled_type!r}: The value of the TypeVar is undefined")
 
     filled_type_args = get_args(filled_type)
-    if len(filled_type_args) < type_var_index:
+    if len(filled_type_args) <= type_var_index:
         raise TypeError(
-            f"Could not determine the type in {filled_type!r}: " f"{filled_type!r} has not enough type arguments"
+            f"Could not determine the type in {filled_type!r}: {filled_type!r} has not enough type arguments"
         )
 
     return filled_type_args[type_var_index]

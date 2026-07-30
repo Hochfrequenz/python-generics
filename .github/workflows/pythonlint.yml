@@ -19,8 +19,7 @@ jobs:
       - name: Run linting
         if: matrix.linter-env == 'linting'
         run: |
-          uv run --group linting pylint src/generics
-          uv run --group linting pylint unittests --rcfile=unittests/.pylintrc
+          uv run --group linting ruff check src/generics unittests
       - name: Run type_check
         if: matrix.linter-env == 'type_check'
         run: |
