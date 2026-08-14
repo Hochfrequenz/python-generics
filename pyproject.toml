@@ -60,7 +60,7 @@ tests = [
     "pytest==9.1.1"
 ]
 coverage = [
-    "coverage==7.15.2",
+    "coverage==7.15.4",
     {include-group = "tests"}
 ]
 linting = [
