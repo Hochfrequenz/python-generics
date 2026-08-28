@@ -64,7 +64,7 @@ coverage = [
     {include-group = "tests"}
 ]
 linting = [
-    "ruff==0.16.2",
+    "ruff==0.16.4",
     {include-group = "tests"}
 ]
 type_check = [
