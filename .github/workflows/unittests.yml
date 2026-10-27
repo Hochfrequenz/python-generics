@@ -6,7 +6,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        python-version: ["3.11", "3.12", "3.13", "3.14", "3.15"]
         os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v7
@@ -18,7 +18,7 @@ jobs:
         run: uv sync --group tests
       - name: Run the Unit Tests
         run: |
-          if [ "${{ matrix.python-version }}" = "3.10" ] || [ "${{ matrix.python-version }}" = "3.11" ]; then
+          if [ "${{ matrix.python-version }}" = "3.11" ]; then
             uv run --group tests pytest --ignore=unittests/test_py_312.py
           else
             uv run --group tests pytest
