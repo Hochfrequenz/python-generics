@@ -57,7 +57,7 @@ skip = "uv.lock"
 [dependency-groups]
 tests = [
     "pydantic==2.14.1",
-    "pytest==9.1.1"
+    "pytest==9.2.0"
 ]
 coverage = [
     "coverage==7.16.2",
